@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres
+    container_name: postgres_cryptography_challenge
+    environment:
+      POSTGRES_DB: crypto_challenge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: always
+    volumes:
+      - ./dataset:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    networks:
+      - challenge
+  app:
+    container_name: cryptography_challenge
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - challenge
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/crypto_challenge
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+networks:
+  challenge:
+    driver: bridge
